@@ -7,11 +7,7 @@ from flask import flash
 from flowapp import db
 from flowapp.ddp_api import send_rule_to_ddos_protector
 from flowapp.forms import IPv4Form, IPv6Form
-<<<<<<< HEAD
 from flowapp.models import DDPDevice, DDPRulePreset, DDPRuleExtras, get_ddp_extras_model_if_exists
-=======
-from flowapp.models import DDPDevice, DDPRulePreset, DDPRuleExtras
->>>>>>> 6bf4d54... add function to validate rule form containing a DDoS Protector rule
 
 
 def get_available_ddos_protector_device() -> DDPDevice:
