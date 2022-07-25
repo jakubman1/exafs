@@ -28,3 +28,19 @@ export function attachHtmlToRef(html: HTMLElement | HTMLCollection, ref: HTMLEle
         }
     }
 }
+
+/***
+ * Attach HTML to an existing element on page identified by an ID
+ *
+ * @param {HTMLElement | HTMLCollection} html     - HTML object to attach
+ * @param {string}                       targetID - ID of an existing HTML element to attach
+ *                                                  the new HTML to. New HTML will be attached
+ *                                                  as children to the element. If an element with
+ *                                                  given ID does not exist, HTML will not be added.
+ */
+export function attachHtmlTo(html: HTMLElement | HTMLCollection, targetID: string) {
+    const target = document.getElementById(targetID);
+    if(target) {
+        attachHtmlToRef(html, target);
+    }
+}
