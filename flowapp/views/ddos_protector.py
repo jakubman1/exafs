@@ -58,6 +58,17 @@ def edit_devices(device_id):
     )
 
 
+@ddos_protector.route("/delete-device/<int:device_id>", methods=["GET"])
+@auth_required
+@admin_required
+def delete_ddp_device(device_id):
+    model = db.session.get(DDPDevice, device_id)
+    db.session.delete(model)
+    db.session.commit()
+    flash("Device deleted", "alert-success")
+    return redirect(url_for("ddos-protector.devices"))
+
+
 @ddos_protector.route("/devices", methods=["GET"])
 @auth_required
 @user_or_admin_required
