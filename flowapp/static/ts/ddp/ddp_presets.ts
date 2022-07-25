@@ -304,7 +304,7 @@ export function getPresetFieldsByRuleType(ruleType: DDPRuleType): DDPPresetField
  */
 export function getValidatorsByAttribute(key: string): Validator[] {
     const field = getPresetField(key);
-    if (field) {
+    if (field && field.validators) {
         return field.validators;
     } else {
         return [];

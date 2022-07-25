@@ -1,3 +1,6 @@
+import {getValidatorsByAttribute} from "./ddp_presets";
+import {setErrorMessage} from "./ddp_inputs";
+
 export interface Validator {
     /**
      * Optional extra settings for the validator
@@ -89,5 +92,33 @@ export class NonZeroValidator implements Validator {
 
     invalidMessage(): string {
         return 'This field can not be zero.';
+    }
+}
+
+/***
+ * Get all validators from a given field name and check them.
+ * If a validator does not pass, add an error message to the field.
+ *
+ * @param {string} fieldName                              - DDoS Protector rule attribute the field represents
+ * @param {HTMLInputElement | HTMLSelectElement} fieldRef - Reference to the field in the HTML document
+ * @param {number} id                                     - Numeric ID of the field in HTML
+ */
+export function validateField(fieldName: string, fieldRef: HTMLInputElement | HTMLSelectElement, id: number) {
+    const validators = getValidatorsByAttribute(fieldName);
+    if (validators.length > 0) {
+        let messages = '';
+        let valid = true;
+        for (let v of validators) {
+            if (!v.validate(fieldRef.value)) {
+                valid = false;
+                messages += v.invalidMessage() + '<br>';
+            }
+        }
+        setErrorMessage(id, messages);
+        if (!valid) {
+            fieldRef.classList.add('is-invalid');
+        } else {
+            fieldRef.classList.remove('is-invalid');
+        }
     }
 }
