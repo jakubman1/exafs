@@ -1,6 +1,14 @@
-import {DDPPreset, DDPPresetField, DDPRuleType, getPresetField, PresetFieldType} from "./ddp_presets";
-import {clearAllChildren, createChild} from "../renderer";
+import {
+    DDPPreset,
+    DDPPresetField,
+    DDPRuleType, getFieldsByType,
+    getPresetField,
+    PresetFieldType,
+    RangePresetFieldOpts, SliderType
+} from "./ddp_presets";
+import {attachHtmlToRef, clearAllChildren, createChild, removeElement, stringToHtml} from "../renderer";
 import {createPresetFormField} from "./ddp_inputs";
+import {logarithmicValueFromPos} from "../logscale";
 
 export class DDPPresetSelectForm {
     /** CSS ID of a parent element to render the form to */
@@ -111,4 +119,47 @@ export class DDPPresetSelectForm {
     private static _isEditable(key: string, editables: string[]): boolean {
         return editables.includes(key);
     }
+}
+
+
+/***
+ * Recalculate the range sliders using logarithmic scales and
+ * set low/high values. Form data can not be directly changed,
+ * therefore new hidden field with the same name as the range
+ * slider is added for each slider, containing the correct value.
+ * Removes the original sliders, so this function should be called
+ * as an event listener to onSubmit event (or as close to submitting as possible).
+ *
+ * Changes all DDoS Protector inputs to hidden fields and adds a 'ddp_' prefix
+ * to their names, to prevent conflicts with the Flowspec form names.
+ *
+ * @param {HTMLFormElement} formRef - Form element containing range sliders.
+ * @returns {boolean} - True if the form is valid, false otherwise.
+ */
+export function beforeIPFormSend(formRef: HTMLFormElement) {
+    const data = new FormData(formRef);
+    if (data.get('action') !== '4') {
+        return true;
+    }
+    const rangeFields = getFieldsByType(PresetFieldType.RANGE);
+    for (const f of rangeFields) {
+        const value = data.get('ddp_' + f.name);
+        if (value !== null) {
+            const opts = f.options as RangePresetFieldOpts;
+            const originalElem = document.querySelector(`[name="${'ddp_' + f.name}"]`) as HTMLElement;
+            if (originalElem) {
+                removeElement(originalElem);
+            }
+            if (opts.type === SliderType.LOGARITHMIC) {
+                const input =
+                    `<input type="hidden" value="${logarithmicValueFromPos(+value, opts.low, opts.high)}" name="${'ddp_' + f.name}">`;
+                attachHtmlToRef(stringToHtml(input), formRef);
+            } else {
+                const input =
+                    `<input type="hidden" value="${value}" name="${'ddp_' + f.name}">`;
+                attachHtmlToRef(stringToHtml(input), formRef);
+            }
+        }
+    }
+    return true;
 }
