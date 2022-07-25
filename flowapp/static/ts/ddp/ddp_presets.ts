@@ -1,4 +1,6 @@
 import {NonZeroValidator, NumberRangeValidator, RegexPatternValidator, Validator} from "./validators";
+import {formatSIUnitNumber} from "../utils";
+import {Modal} from "bootstrap";
 
 export type DDPPreset = {
     name: string;
@@ -308,5 +310,42 @@ export function getValidatorsByAttribute(key: string): Validator[] {
         return field.validators;
     } else {
         return [];
+    }
+}
+
+/***
+ * Show a Bootstrap 5 modal showing a table with preset values
+ * Requires a modal to be present in HTML. These 3 elements with specific IDs have to be present:
+ * - A <div class="modal"> with ID "presetDetailModal". This div should be the highest level element of the modal window.
+ * - A <tbody> element with ID "presetDetailBody" as the body of a table with 3 columns - "key", "value' and "editable"
+ * - A text element (heading recommended) with id "presetDetailTitle", that will be filled with the preset name
+ * All of these 3 elements are required, otherwise the modal will not be shown.
+ *
+ * @param {string} title      - Name of the preset
+ * @param {object} fields     - Object with preset values
+ * @param {string[]} editable - List of keys that the user can edit
+ * */
+export function showPresetModal(title: string, fields: { [key: string]: any }, editable: string[]) {
+    const titleElem = document.getElementById('presetDetailTitle');
+    const bodyElem = document.getElementById('presetDetailBody') as HTMLTableElement;
+    const modalElem = document.getElementById('presetDetailModal');
+    if (titleElem && bodyElem && modalElem) {
+        titleElem.innerHTML = title;
+        bodyElem.innerHTML = '';
+        for (let key in fields) {
+            let row = bodyElem.insertRow(bodyElem.rows.length);
+            let keyCell = row.insertCell();
+            let valCell = row.insertCell();
+            let editableCell = row.insertCell();
+            keyCell.innerHTML = key;
+            if (typeof fields[key] === 'number') {
+                valCell.innerHTML = formatSIUnitNumber(fields[key] as number, 2, '');
+            } else {
+                valCell.innerHTML = fields[key].toString();
+            }
+            editableCell.innerHTML = editable.includes(key) ? 'Yes' : 'No';
+        }
+        let modal = new Modal(modalElem, {backdrop: true, keyboard: true});
+        modal.show();
     }
 }
