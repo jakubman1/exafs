@@ -16,12 +16,14 @@ export class DDPPresetEditForm {
     private _maxId: number = 0;
     private _ruleType: DDPRuleType = DDPRuleType.FILTER;
     private _activeFields: DDPPresetField[] = [];
+    private _availableFields: DDPPresetField[];
 
     constructor(containerId: string, ruleTypeSelectId: string, varName: string) {
         this.containerId = containerId;
         this.ruleTypeSelect = document.getElementById(ruleTypeSelectId) as HTMLSelectElement;
-        this._ruleType = this.ruleTypeSelect.value as DDPRuleType;
         this.varName = varName;
+        this.ruleTypeSelect.addEventListener('change', this.onRuleTypeChange);
+        this.onRuleTypeChange();
     }
 
     /***
@@ -65,6 +67,72 @@ export class DDPPresetEditForm {
     }
 
     /***
+     * Handle rule type change - set the internal variable, reload the available
+     * attributes cache, rebuild dropdowns and check for invalid attributes for
+     * the new rule type.
+     */
+    public onRuleTypeChange() {
+        this._ruleType = this.ruleTypeSelect.value as DDPRuleType;
+        this._availableFields = getPresetFieldsByRuleType(this._ruleType);
+        this._rebuildAttributeSelectDropdowns();
+    }
+
+    /***
+     * Set an error message to an attribute selection dropdown.
+     *
+     * @param {number} id - numeric ID of the dropdown to display the message to
+     * @param {string} message - Message to display to the user
+     */
+    public setKeyErrorMessage(id: number, message: string) {
+        const errorElem = document.getElementById('form-error-msg' + id);
+        const selectElem = document.getElementById('fieldSelect' + id)
+        if (errorElem && selectElem) {
+            errorElem.innerText = message;
+            if (message == '') {
+                selectElem.classList.remove('is-invalid');
+            } else {
+                selectElem.classList.add('is-invalid');
+            }
+        }
+    }
+
+    /***
+     * Get all attribute selection dropdowns and change options to reflect rule type change.
+     * If an invalid option for current rule type is selected, the invalid option stays selected,
+     * but the selection dropdown is given the "is-invalid" css class, the invalid options gets the
+     * 'invalid' HTML attribute and an error message is displayed.
+     */
+    private _rebuildAttributeSelectDropdowns() {
+        for (let i = 0; i < this._maxId; i++) {
+            const field = document.getElementById('fieldSelect' + i) as HTMLSelectElement;
+            if (field) {
+                field.classList.remove('is-invalid');
+                let wrongOpt = '';
+                if (!this._fieldExistsInCache(field)) {
+                    wrongOpt = `<option value=${field.value} selected invalid>${field.options[field.selectedIndex].text}</option>`;
+                    field.classList.add('is-invalid');
+                    this.setKeyErrorMessage(i, 'Invalid field for selected rule type');
+                } else {
+                    this.setKeyErrorMessage(i, '');
+                }
+                field.innerHTML = this._createFieldSelectionDropdownOptions(field.value) + wrongOpt;
+            }
+        }
+    }
+
+    /***
+     * Check if selected attribute is in available fields (and is not from a different rule type)
+     *
+     * @param {HTMLSelectElement} field - Attribute selection element to check
+     * @returns {boolean}               - True if attribute can be set with current rule type
+     */
+    private _fieldExistsInCache(field: HTMLSelectElement): boolean {
+        return !!this._availableFields.find((f) => {
+            return f.name === field.value
+        });
+    }
+
+    /***
      * Create a wrapper for input fields in the preset editing form.
      * The wrapper adds a rule attribute selection dropdown, Bootstrap
      * grid wrappers, error message containers, a checkbox to set whether
@@ -103,16 +171,11 @@ export class DDPPresetEditForm {
      * Create HTML formatted string of options for all rule attributes from set rule type
      *
      * @param {string | undefined} selected - Which attribute should be selected by default
-     * @param {DDPPresetField[] | undefined} availableFields - Array of available fields for set rule type. If not set,
-     *                                                         this function loads the list by calling getPresetFieldsByRuleType().
      * @returns {string} - HTML formatted string with valid attribute options for set rule type.
      */
-    private _createFieldSelectionDropdownOptions(selected?: string, availableFields?: DDPPresetField[]): string {
+    private _createFieldSelectionDropdownOptions(selected?: string): string {
         let retval = '';
-        if (!availableFields) {
-            availableFields = getPresetFieldsByRuleType(this._ruleType);
-        }
-        for (const f of availableFields) {
+        for (const f of this._availableFields) {
             retval += `<option value="${f.name}" ${f.name === selected ? 'selected' : ''}>${f.printName}</option>`;
         }
         return retval;
