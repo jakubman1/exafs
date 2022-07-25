@@ -349,3 +349,15 @@ export function showPresetModal(title: string, fields: { [key: string]: any }, e
         modal.show();
     }
 }
+
+/***
+ * Get all preset fields with the given type
+ *
+ * @param {PresetFieldType} type - Type of fields to find
+ * @returns {DDPPresetField[]}   - An array of fields of given type
+ */
+export function getFieldsByType(type: PresetFieldType): DDPPresetField[] {
+    return AVAILABLE_PRESET_FIELDS.filter((preset) => {
+        return preset.type === type;
+    });
+}
