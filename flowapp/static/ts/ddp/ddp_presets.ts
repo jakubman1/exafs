@@ -283,3 +283,15 @@ export function getPresetField(key: string): DDPPresetField | undefined {
     })
 }
 
+/***
+ * Get all preset fields that can be included with given rule type
+ *
+ * @param {DDPRuleType} ruleType - Find fields that support this rule type
+ * @returns {DDPPresetField[]}   - Subset of all available fields, where the `rule_types` attribute
+ *                                 includes given rule type.
+ * */
+export function getPresetFieldsByRuleType(ruleType: DDPRuleType): DDPPresetField[] {
+    return AVAILABLE_PRESET_FIELDS.filter((field) => {
+        return field.rule_types?.includes(ruleType);
+    })
+}
