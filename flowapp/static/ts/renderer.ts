@@ -44,3 +44,14 @@ export function attachHtmlTo(html: HTMLElement | HTMLCollection, targetID: strin
         attachHtmlToRef(html, target);
     }
 }
+
+/***
+ * Convert string into HTML and attach it as a child to another element
+ * identified by CSS ID.
+ *
+ * @param {string} str - Valid HTML in a string
+ * @param {string} parentID - ID of the element to attach the new HTML to
+ */
+export function createChild(str: string, parentID: string) {
+    attachHtmlTo(stringToHtml(str), parentID);
+}
