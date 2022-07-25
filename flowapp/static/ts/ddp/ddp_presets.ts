@@ -295,3 +295,18 @@ export function getPresetFieldsByRuleType(ruleType: DDPRuleType): DDPPresetField
         return field.rule_types?.includes(ruleType);
     })
 }
+
+/***
+ * Get all validators for a given rule attribute
+ *
+ * @param {string} key    - DDoS Protector rule attribute to check
+ * @returns {Validator[]} - List of validators for given attribute
+ */
+export function getValidatorsByAttribute(key: string): Validator[] {
+    const field = getPresetField(key);
+    if (field) {
+        return field.validators;
+    } else {
+        return [];
+    }
+}
