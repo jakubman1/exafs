@@ -267,3 +267,19 @@ export const AVAILABLE_PRESET_FIELDS: DDPPresetField[] = [
         validators: [new NumberRangeValidator(10, 30)]
     }
 ];
+
+
+/***
+ * Get field information based on the rule field name from database
+ *
+ * @param {string} key - DDoS Protector rule field name from database
+ * @returns {DDPPresetField} - Information about the field, such as human-readable name,
+ *                             type of the input field, supported rule types and more
+ *                             (additional information in the `options` field based on input type)
+ * */
+export function getPresetField(key: string): DDPPresetField | undefined {
+    return AVAILABLE_PRESET_FIELDS.find((field) => {
+        return field.name === key
+    })
+}
+
