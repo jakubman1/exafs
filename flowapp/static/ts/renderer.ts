@@ -55,3 +55,26 @@ export function attachHtmlTo(html: HTMLElement | HTMLCollection, targetID: strin
 export function createChild(str: string, parentID: string) {
     attachHtmlTo(stringToHtml(str), parentID);
 }
+
+/***
+ * Remove all children of a given element specified by a CSS id
+ *
+ * @param {string} id: CSS ID of an element, whose children should be removed.
+ * */
+export function clearAllChildren(id: string) {
+    const elem = document.getElementById(id);
+    if (elem) {
+        elem.innerHTML = '';
+    }
+}
+
+/***
+ * Remove element from page. Does not work for top-level elements that do not
+ * have parent elements.
+ *
+ * @param {HTMLElement} ref - Element to remove
+ */
+export function removeElement(ref: HTMLElement) {
+    ref.parentElement?.removeChild(ref);
+}
+
