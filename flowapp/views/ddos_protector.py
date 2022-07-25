@@ -1,3 +1,67 @@
-from flask import Blueprint
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+
+from flowapp import db
+from flowapp.auth import auth_required, user_or_admin_required, admin_required
+from flowapp.forms import DDPDeviceForm
+from flowapp.models import DDPDevice
 
 ddos_protector = Blueprint("ddos-protector", __name__, template_folder="templates")
+
+
+@ddos_protector.route("/new-device", methods=["GET", "POST"], defaults={"device_id": None})
+@ddos_protector.route("/edit-device/<device_id>", methods=["GET", "POST"])
+@auth_required
+@admin_required
+def edit_devices(device_id):
+    device = None
+    if device_id is not None:
+        # Load preset from database
+        device = db.session.get(DDPDevice, device_id)
+        form = DDPDeviceForm(request.form, obj=device)
+        form.populate_obj(device)
+    else:
+        form = DDPDeviceForm(request.form)
+
+    if request.method == "POST" and form.validate():
+        url = form.url.data
+        if url[-1] == '/':
+            url = url[:-1]
+        if device_id is not None:
+            device.url = url
+            device.key = form.key.data
+            device.redirect_command = form.redirect_command.data
+            device.active = form.active.data
+            device.key_header = form.key_header.data
+            device.name = form.name.data
+            db.session.commit()
+            flash("Device edited", "alert-success")
+        else:
+            device = DDPDevice(
+                url=url,
+                key=form.key.data,
+                redirect_command=form.redirect_command.data,
+                active=form.active.data,
+                key_header=form.key_header.data,
+                name=form.name.data,
+            )
+            db.session.add(device)
+            db.session.commit()
+            flash("Device saved", "alert-success")
+        return redirect(url_for("ddos-protector.devices"))
+
+    action_url = url_for("ddos-protector.edit_devices", device_id=device_id)
+    return render_template(
+        "forms/simple_form.j2",
+        title="Add new DDoS Protector device",
+        form=form,
+        action_url=action_url,
+    )
+
+
+@ddos_protector.route("/devices", methods=["GET"])
+@auth_required
+@user_or_admin_required
+def devices():
+    data = DDPDevice.query.all()
+    return render_template("pages/ddp_devices.j2", devices=data)
+
