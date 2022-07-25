@@ -1,0 +1,18 @@
+{
+  "name": "exafs",
+  "version": "0.6.2",
+  "description": "Tool for creation, validation and execution of ExaBGP messages",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CESNET/ExaFS.git"
+  },
+  "author": "Jiří Vraný, Petr Adamec, Josef Verich, Jakub Man",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CESNET/ExaFS/issues"
+  },
+  "homepage": "https://github.com/CESNET/ExaFS#readme"
+}
