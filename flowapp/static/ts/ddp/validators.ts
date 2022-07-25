@@ -43,3 +43,38 @@ export class NumberRangeValidator implements Validator {
         return `Value has to be in range ${this.options.min} - ${this.options.max}`;
     }
 }
+
+export class RegexPatternValidator implements Validator {
+    options: {
+        readonly regex: RegExp,
+        name?: string,
+        hint?: string
+    }
+
+    /**
+     * Validate a text field based on a regular expression.
+     *
+     * @param {RegExp} regex            - Regular expression the input has to pass
+     * @param {string | undefined} name - Name of the input field to show to the user as a hint
+     * @param {string | undefined} hint - A hint to display to the user, if the input is invalid
+     */
+    constructor(regex: RegExp, name?: string, hint?: string) {
+        this.options = {regex: regex, name: name, hint: hint};
+    }
+
+    validate(value: string): boolean {
+        const re = new RegExp(this.options.regex)
+        return re.test(value);
+    }
+
+    invalidMessage(): string {
+        let message = 'Invalid format'
+        if (this.options.name) {
+            message += ' for ' + this.options.name
+        }
+        if (this.options.hint) {
+            message += ' - ' + this.options.hint;
+        }
+        return message;
+    }
+}
