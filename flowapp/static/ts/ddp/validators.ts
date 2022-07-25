@@ -78,3 +78,16 @@ export class RegexPatternValidator implements Validator {
         return message;
     }
 }
+
+export class NonZeroValidator implements Validator {
+    /**
+     * Check if a given value is not equal to zero.
+     */
+    validate(value: string | number): boolean {
+        return (+value) !== 0;
+    }
+
+    invalidMessage(): string {
+        return 'This field can not be zero.';
+    }
+}
