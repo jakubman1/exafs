@@ -164,3 +164,20 @@ export function createPresetFormField(field: DDPPresetField, id: number, initVal
     val += '</div>';
     return val;
 }
+
+/***
+ * Show an error message for a give input field.
+ * The input field has to have an element with CSS ID "form-value-error-msg" + numeric id
+ * for example "form-value-error-msg1".
+ * Replaces the content of the form value element. If the element for given ID does not
+ * exist, this function does nothing.
+ *
+ * @param {number} id - ID of the element in the form
+ * @param {string} message - An error message to show, set to empty to remove all messages. Replaces any old messages.
+ */
+export function setErrorMessage(id: number, message: string) {
+    const errorElem = document.getElementById('form-value-error-msg' + id);
+    if (errorElem) {
+        errorElem.innerHTML = message;
+    }
+}
