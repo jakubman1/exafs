@@ -1,4 +1,4 @@
-import {DDPPresetField, DDPRuleType, getPresetField, getPresetFieldsByRuleType} from "./ddp_presets";
+import {DDPPreset, DDPPresetField, DDPRuleType, getPresetField, getPresetFieldsByRuleType} from "./ddp_presets";
 import {createPresetFormField} from "./ddp_inputs";
 import {createChild} from "../renderer";
 
@@ -24,6 +24,26 @@ export class DDPPresetEditForm {
         this.varName = varName;
         this.ruleTypeSelect.addEventListener('change', this.onRuleTypeChange);
         this.onRuleTypeChange();
+    }
+
+    /***
+     * Initialize the form from existing preset.
+     * Sets the rule type and creates all fields present in the preset.
+     *
+     * @param {DDPPreset} preset - Preset to initialize from
+     * */
+    public initFromPreset(preset: DDPPreset) {
+        this.ruleTypeSelect.value = preset.fields.rule_type as string;
+        this.onRuleTypeChange();
+        Object.entries(preset.fields).forEach(([key, value], index) => {
+            if (key !== 'rule_type') {
+                const id = this.addField(key, value);
+                if (id !== -1) {
+                    const check = document.getElementById(`userEditable${id}`) as HTMLInputElement;
+                    check.checked = preset.editable.includes(key);
+                }
+            }
+        });
     }
 
     /***
