@@ -163,3 +163,19 @@ export function beforeIPFormSend(formRef: HTMLFormElement) {
     }
     return true;
 }
+
+/***
+ * Switch the text of the element identified by ID `advancedOptsId` between
+ * "Hide advanced options" and "Show advanced options" based on the `isOpen`
+ * variable.
+ *
+ * @param {string} advancedOptsId - ID of the element whose text should be changed
+ * @param {boolean} isOpen        - If true, text will be changed to "Hide ...", otherwise it will be changed to "Show ..."
+ */
+export function changeAdvancedOptionsText(advancedOptsId: string, isOpen: boolean) {
+    const elem = document.getElementById(advancedOptsId);
+    if (elem) {
+        elem.innerHTML = isOpen ? 'Hide advanced options <i class="bi bi-caret-up-fill"></i>'
+            : 'Show advanced options <i class="bi bi-caret-down-fill"></i>';
+    }
+}

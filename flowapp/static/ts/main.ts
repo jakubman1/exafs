@@ -9,7 +9,7 @@ window.onload = function () {
 
 export {showPresetModal} from "./ddp/ddp_presets";
 export {DDPPresetEditForm} from "./ddp/ddp_preset_edit_form";
-export {DDPPresetSelectForm} from "./ddp/ddp_preset_select_form";
+export {DDPPresetSelectForm, changeAdvancedOptionsText, beforeIPFormSend} from "./ddp/ddp_preset_select_form";
 export {validateField} from "./ddp/validators";
 export {updateRangeValText} from "./ddp/ddp_inputs";
 export {showFieldIf} from "./forms";
