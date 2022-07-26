@@ -67,6 +67,12 @@ export type RangePresetFieldOpts = {
     type: SliderType;
 }
 
+export type FieldRequirements = {
+    name: string,
+    relationship: PresetFieldRequirementRelationship,
+    rule_types: DDPRuleType[]
+};
+
 export type DDPPresetField = {
     printName: string;
     name: string
@@ -77,7 +83,7 @@ export type DDPPresetField = {
     rule_types: DDPRuleType[];
     options?: EnumPresetFieldOpts | RangePresetFieldOpts;
     validators?: Validator[];
-    requires_fields?: [{ name: string, relationship: PresetFieldRequirementRelationship, rule_types: DDPRuleType[] }]
+    requires_fields?: FieldRequirements[]
 }
 
 export const AVAILABLE_PRESET_FIELDS: DDPPresetField[] = [
