@@ -267,4 +267,23 @@ export class DDPPresetEditForm {
             return field.formId === id;
         })
     }
+
+    /***
+     * Find all children of the given select element that have the 'invalid'
+     * tag and remove them. Remove the error message and the 'is-invalid'
+     * class from the element
+     *
+     * @param {HTMLSelectElement} select - Element to remove the invalid options from
+     * @param {number} id                - Numeric formId of the element
+     */
+    private _removeInvalidSelectOptions(select: HTMLSelectElement, id: number) {
+        let children = select.children;
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].hasAttribute('invalid')) {
+                select.removeChild(children[i]);
+            }
+        }
+        this.setKeyErrorMessage(id, '');
+        select.classList.remove('is-invalid');
+    }
 }
