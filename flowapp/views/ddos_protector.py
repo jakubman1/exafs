@@ -1,9 +1,12 @@
+import requests
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 
 from flowapp import db
 from flowapp.auth import auth_required, user_or_admin_required, admin_required
+from flowapp.ddp import get_available_ddos_protector_device, create_ddp_rule_from_extras, reactivate_ddp_rule
+from flowapp.ddp_api import remove_rule_from_ddos_protector
 from flowapp.forms import DDPDeviceForm
-from flowapp.models import DDPDevice, DDPRulePreset, format_preset
+from flowapp.models import DDPDevice, DDPRulePreset, format_preset, DDPRuleExtras
 
 ddos_protector = Blueprint("ddos-protector", __name__, template_folder="templates")
 
@@ -159,3 +162,88 @@ def duplicate_preset(preset_id):
     return render_template(
         "forms/ddp_preset_form.j2", preset=format_preset(preset), new=True
     )
+
+
+@ddos_protector.route("/rules", methods=["GET"])
+@auth_required
+def rules():
+    args = request.args
+    order = args.get('order')
+    flowspec4 = args.get('flowspec4')
+    flowspec6 = args.get('flowspec6')
+    device = args.get('device')
+    query = db.session.query(DDPRuleExtras)
+    if flowspec4 is not None:
+        try:
+            query = query.filter(DDPRuleExtras.flowspec4_id == int(flowspec4))
+        except ValueError:
+            pass  # flowspec4 value was not numeric - skip filter
+    if flowspec6 is not None:
+        try:
+            query = query.filter(DDPRuleExtras.flowspec6_id == int(flowspec6))
+        except ValueError:
+            pass  # flowspec6 value was not numeric - skip filter
+    if device is not None:
+        try:
+            query = query.filter(DDPRuleExtras.device_id == int(device))
+        except ValueError:
+            pass  # device was not numeric - skip filter
+    if order is not None:
+        if order == 'flowspec4':
+            query = query.order_by(DDPRuleExtras.flowspec4_id)
+        elif order == 'flowspec6':
+            query = query.order_by(DDPRuleExtras.flowspec6_id)
+
+    rules_data = query.all()
+    return render_template("pages/ddp_rules.j2", rules=rules_data, order=order)
+
+
+@ddos_protector.route("/delete-rule-from-protector/<int:rule_extras_id>", methods=["GET"])
+@auth_required
+@admin_required
+def delete_ddp_rule(rule_extras_id):
+    model = db.session.get(DDPRuleExtras, rule_extras_id)
+    if model.ddp_rule_id is not None and model.device_id is not None:
+        try:
+            result = remove_rule_from_ddos_protector(
+                model.ddp_rule_id,
+                model.device.url,
+                model.device.key,
+                model.device.key_header
+            )
+            if result.status_code == 200:
+                flash("Rule deleted from DDoS Protector", "alert-success")
+                model.ddp_rule_id = None
+                model.device = None
+                db.session.commit()
+            else:
+                flash('Could not remove the rule, status code ' +
+                      str(result.status_code) +
+                      '. Click the "Check rule on device" button to get the actual status')
+        except requests.exceptions.ConnectionError as exc:
+            flash("Rule could not be removed: " + str(exc), 'alert-danger')
+    else:
+        flash("Rule was already removed from DDoS Protector", "alert-info")
+    return redirect(url_for("ddos-protector.rules"))
+
+
+@ddos_protector.route("/resend-rule-from-protector/<int:rule_extras_id>", methods=["GET"])
+@auth_required
+@admin_required
+def resend_ddp_rule(rule_extras_id):
+    model = db.session.get(DDPRuleExtras, rule_extras_id)
+    if model.ddp_rule_id is not None and model.device_id is not None:
+        flash("Rule was already on the DDoS Protector device. Remove it before sending it again.", "alert-warning")
+    else:
+        device = get_available_ddos_protector_device()
+        rule = {}
+        if model.flowspec4_id is not None:
+            rule = create_ddp_rule_from_extras(model, 4)
+        elif model.flowspec6_id is not None:
+            rule = create_ddp_rule_from_extras(model, 6)
+        else:
+            flash('Could not recreate the rule, rule not attached to any Flowspec rule - would never redirect to DDoS '
+                  'Protector', 'alert-danger')
+            return redirect(url_for("ddos-protector.rules"))
+        reactivate_ddp_rule(model, rule, device)
+    return redirect(url_for("ddos-protector.rules"))
