@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flowapp import db
 from flowapp.auth import auth_required, user_or_admin_required, admin_required
 from flowapp.ddp import get_available_ddos_protector_device, create_ddp_rule_from_extras, reactivate_ddp_rule
-from flowapp.ddp_api import remove_rule_from_ddos_protector
+from flowapp.ddp_api import remove_rule_from_ddos_protector, get_rule_from_ddos_protector
 from flowapp.forms import DDPDeviceForm
 from flowapp.models import DDPDevice, DDPRulePreset, format_preset, DDPRuleExtras
 
@@ -246,4 +246,83 @@ def resend_ddp_rule(rule_extras_id):
                   'Protector', 'alert-danger')
             return redirect(url_for("ddos-protector.rules"))
         reactivate_ddp_rule(model, rule, device)
+    return redirect(url_for("ddos-protector.rules"))
+
+
+@ddos_protector.route("/check-rule-on-protector/<int:rule_extras_id>", methods=["GET"])
+@auth_required
+@admin_required
+def check_ddp_rule(rule_extras_id):
+    model = db.session.get(DDPRuleExtras, rule_extras_id)
+    if model is not None and model.ddp_rule_id is not None and model.device_id is not None:
+        try:
+            result = get_rule_from_ddos_protector(
+                model.ddp_rule_id,
+                model.device.url,
+                model.device.key,
+                model.device.key_header
+            )
+            if result.status_code == 200:
+                data = result.json()
+                model.ddp_rule_id = data['id']
+                flash(
+                    "Rule exists on " +
+                    model.device.url +
+                    ' with ID ' +
+                    str(data['id']) +
+                    '. <a href="' +
+                    url_for() +
+                    '" class="alert-link">See the full output</a>.', "alert-success")
+                db.session.commit()
+            elif result.status_code == 404:
+                flash("Rule does not exist on " + model.device.url + '. Local information updated.', "alert-warning")
+                model.ddp_rule_id = None
+                model.device = None
+                db.session.commit()
+            else:
+                flash('Could not check the rule status, DDoS Protector returned status code ' +
+                      str(result.status_code) +
+                      '. Try again later.', 'alert-danger')
+        except requests.exceptions.ConnectionError as exc:
+            flash("Could not connect to the device: " + str(exc), 'alert-danger')
+    else:
+        flash("Rule does not have any DDoS Protector device linked to it, can not verify", "alert-danger")
+    return redirect(url_for("ddos-protector.rules"))
+
+
+@ddos_protector.route("/check-rule-on-protector/<int:rule_extras_id>", methods=["GET"])
+@auth_required
+@admin_required
+def check_ddp_rule(rule_extras_id):
+    model = db.session.get(DDPRuleExtras, rule_extras_id)
+    if model is not None and model.ddp_rule_id is not None and model.device_id is not None:
+        try:
+            result = get_rule_from_ddos_protector(
+                model.ddp_rule_id,
+                model.device.url,
+                model.device.key,
+                model.device.key_header
+            )
+            if result.status_code == 200:
+                data = result.json()
+                model.ddp_rule_id = data['id']
+                flash(
+                    "Rule exists on " +
+                    model.device.url +
+                    ' with ID ' +
+                    str(data['id']), "alert-success")
+                db.session.commit()
+            elif result.status_code == 404:
+                flash("Rule does not exist on " + model.device.url + '. Local information updated.', "alert-warning")
+                model.ddp_rule_id = None
+                model.device = None
+                db.session.commit()
+            else:
+                flash('Could not check the rule status, DDoS Protector returned status code ' +
+                      str(result.status_code) +
+                      '. Try again later.', 'alert-danger')
+        except requests.exceptions.ConnectionError as exc:
+            flash("Could not connect to the device: " + str(exc), 'alert-danger')
+    else:
+        flash("Rule does not have any DDoS Protector device linked to it, can not verify", "alert-danger")
     return redirect(url_for("ddos-protector.rules"))
