@@ -105,6 +105,35 @@ export class DDPPresetEditForm {
     }
 
     /***
+     * Update the input field based on the attribute selection dropdown
+     *
+     * @param {HTMLSelectElement} keySelect - Reference to the attribute select element
+     * @param {number} id                   - Form ID of the field
+     */
+    public updatePresetInputField(keySelect: HTMLSelectElement, id: number) {
+        const idx = this._getFieldIndexById(id);
+        const prevName = this._activeFields[idx].name;
+        // Create a copy instead of passing a reference
+        const field = {...getPresetField(keySelect.value)} as DDPPresetField;
+        const container = document.getElementById(`fieldValueContainer${id}`);
+        this._removeInvalidSelectOptions(keySelect, id);
+        this._clearInvalidDuplicateWarnings(id, prevName);
+        if (field) {
+            this.changes = true;
+            field.formId = id;
+            if (container) {
+                container.innerHTML = createPresetFormField(field, id);
+            }
+            if (idx !== -1) {
+                this._activeFields[idx] = field;
+            }
+            this.checkForDuplicates(id, keySelect.value);
+        } else if (container) {
+            container.innerHTML = '<p class="text-danger">Invalid rule field name!</p>';
+        }
+    }
+
+    /***
      * Collect the data from the preset form and sent them to backend to save them to the database.
      *
      * @param {string} csrf_token          - The CSRF token for the form
