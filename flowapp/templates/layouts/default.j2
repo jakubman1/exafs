@@ -66,15 +66,19 @@
                       DDoS Protector
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdownDDP">
+                    <li>
+                      <a class="dropdown-item"
+                         href="{{ url_for('ddos-protector.rules') }}">Rules</a>
+                    </li>
                     {% if 3 in session['user_role_ids'] %}
                     <li>
                       <a class="dropdown-item"
                          href="{{ url_for('ddos-protector.presets') }}">Rule presets</a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item"
-                           href="{{ url_for('ddos-protector.edit_preset') }}">Add a rule
-                            preset</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item"
+                         href="{{ url_for('ddos-protector.edit_preset') }}">Add a rule
+                          preset</a>
                     </li>
                     <li>
                       <a class="dropdown-item"
