@@ -228,4 +228,29 @@ export class DDPPresetEditForm {
         }
         return retval;
     }
+
+    /***
+     * Read the preset name from the input field. If the field is empty,
+     * add an error message and the 'is-invalid' class to the input
+     * and scroll to it.
+     *
+     * @returns {string | null} - The input value or null if the field is not filled.
+     */
+    private _getPresetName(): string | null {
+
+        if (!this.presetNameInput) {
+            return null;
+        }
+        if (!this.presetNameInput.value || this.presetNameInput.value === '') {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            this.presetNameInput.classList.add('is-invalid');
+            this.presetNameInput.focus();
+            const presetNameError = document.getElementById('presetNameError');
+            if (presetNameError) {
+                presetNameError.innerText = 'Preset name is required.';
+            }
+            return null;
+        }
+        return this.presetNameInput.value;
+    }
 }
