@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flowapp import db
 from flowapp.auth import auth_required, user_or_admin_required, admin_required
 from flowapp.forms import DDPDeviceForm
-from flowapp.models import DDPDevice
+from flowapp.models import DDPDevice, DDPRulePreset
 
 ddos_protector = Blueprint("ddos-protector", __name__, template_folder="templates")
 
@@ -76,3 +76,34 @@ def devices():
     data = DDPDevice.query.all()
     return render_template("pages/ddp_devices.j2", devices=data)
 
+
+@ddos_protector.route("/new-preset-callback", methods=["POST"])
+@ddos_protector.route("/edit-preset-callback/<preset_id>", methods=["POST"])
+@auth_required
+@user_or_admin_required
+def preset_form_callback(preset_id=None):
+    keys = list(request.form.keys())
+    values = list(request.form.values())
+    data = {}
+    for i in range(len(keys)):
+        data[keys[i]] = values[i]
+
+    del data["csrf_token"]
+    model = DDPRulePreset(**data)
+    if preset_id is None:
+        db.session.add(model)
+        db.session.commit()
+        flash("Preset successfully added", "alert-success")
+    else:
+        model = db.session.query(DDPRulePreset).get(preset_id)
+        model_dict = model.__dict__.copy()
+        del model_dict["_sa_instance_state"]
+        del model_dict["id"]
+        for key in model_dict:
+            if key in data:
+                setattr(model, key, data[key])
+            else:
+                setattr(model, key, None)
+        db.session.commit()
+        flash("Preset successfully updated", "alert-success")
+    return "saved"
