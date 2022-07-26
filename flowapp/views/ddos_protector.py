@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flowapp import db
 from flowapp.auth import auth_required, user_or_admin_required, admin_required
 from flowapp.forms import DDPDeviceForm
-from flowapp.models import DDPDevice, DDPRulePreset
+from flowapp.models import DDPDevice, DDPRulePreset, format_preset
 
 ddos_protector = Blueprint("ddos-protector", __name__, template_folder="templates")
 
@@ -107,3 +107,25 @@ def preset_form_callback(preset_id=None):
         db.session.commit()
         flash("Preset successfully updated", "alert-success")
     return "saved"
+
+
+@ddos_protector.route("/presets", methods=["GET"])
+@auth_required
+@user_or_admin_required
+def presets():
+    data = DDPRulePreset.query.all()
+    preset_list = []
+    for d in data:
+        preset_list.append(format_preset(d))
+    return render_template("pages/ddp_presets.j2", presets=preset_list)
+
+
+@ddos_protector.route("/delete-preset/<int:preset_id>", methods=["GET"])
+@auth_required
+@admin_required
+def delete_ddp_preset(preset_id):
+    model = db.session.get(DDPRulePreset, preset_id)
+    db.session.delete(model)
+    db.session.commit()
+    flash("Preset deleted", "alert-success")
+    return redirect(url_for("ddos-protector.presets"))
