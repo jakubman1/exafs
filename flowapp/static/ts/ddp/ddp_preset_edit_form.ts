@@ -12,17 +12,19 @@ export class DDPPresetEditForm {
     /** Name of the variable this class is assigned to.
      Used when creating event callbacks on input elements. */
     public varName: string;
+    /** Input element for the preset name field */
+    public presetNameInput: HTMLInputElement;
 
     private _maxId: number = 0;
     private _ruleType: DDPRuleType = DDPRuleType.FILTER;
     private _activeFields: DDPPresetField[] = [];
-    private _availableFields: DDPPresetField[];
+    private _availableFields: DDPPresetField[] = [];
 
-    constructor(containerId: string, ruleTypeSelectId: string, varName: string) {
+    constructor(containerId: string, ruleTypeSelectId: string, presetNameInputId: string, varName: string) {
         this.containerId = containerId;
         this.ruleTypeSelect = document.getElementById(ruleTypeSelectId) as HTMLSelectElement;
+        this.presetNameInput = document.getElementById(presetNameInputId) as HTMLInputElement;
         this.varName = varName;
-        this.ruleTypeSelect.addEventListener('change', this.onRuleTypeChange);
         this.onRuleTypeChange();
     }
 
@@ -95,6 +97,32 @@ export class DDPPresetEditForm {
         this._ruleType = this.ruleTypeSelect.value as DDPRuleType;
         this._availableFields = getPresetFieldsByRuleType(this._ruleType);
         this._rebuildAttributeSelectDropdowns();
+    }
+
+    /***
+     * Handle input to the preset name input field.
+     * Adds the 'is-invalid' class, if the field is empty.
+     * If a text element with ID 'presetNameError' is present in
+     * the document, an error message is filled to it
+     * if the name is empty.
+     *
+     * If the preset name input field is not empty, the 'is-invalid'
+     * class and the error message are removed.
+     */
+    public onPresetNameChange() {
+        const msg = document.getElementById('presetNameError');
+        this.changes = true;
+        if (this.presetNameInput.value !== '') {
+            if (msg) {
+                msg.innerText = '';
+            }
+            this.presetNameInput.classList.remove('is-invalid');
+        } else {
+            if (msg) {
+                msg.innerText = 'Preset name is required';
+            }
+            this.presetNameInput.classList.add('is-invalid');
+        }
     }
 
     /***
