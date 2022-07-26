@@ -129,3 +129,33 @@ def delete_ddp_preset(preset_id):
     db.session.commit()
     flash("Preset deleted", "alert-success")
     return redirect(url_for("ddos-protector.presets"))
+
+
+@ddos_protector.route("/new-preset", methods=["GET", "POST"], defaults={"preset_id": None})
+@ddos_protector.route("/edit-preset/<preset_id>", methods=["GET", "POST"])
+@auth_required
+@user_or_admin_required
+def edit_preset(preset_id):
+    preset = None
+    if preset_id is not None:
+        # Load preset from database
+        preset = db.session.get(DDPRulePreset, preset_id)
+    return render_template(
+        "forms/ddp_preset_form.j2", preset=format_preset(preset), new=preset is None
+    )
+
+
+@ddos_protector.route("/duplicate-preset/<preset_id>", methods=["GET", "POST"])
+@auth_required
+@user_or_admin_required
+def duplicate_preset(preset_id):
+    # Load preset from database
+    preset = db.session.get(DDPRulePreset, preset_id)
+    if not preset:
+        flash("Preset not found", "alert-danger")
+        return redirect(url_for("ddos-protector.presets"))
+    name = getattr(preset, "name")
+    setattr(preset, "name", name + " - copy")
+    return render_template(
+        "forms/ddp_preset_form.j2", preset=format_preset(preset), new=True
+    )
