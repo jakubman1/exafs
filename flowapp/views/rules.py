@@ -17,7 +17,7 @@ from flowapp.models import (RTBH, Action, Community, Flowspec4, Flowspec6,
                             get_ipv4_model_if_exists, get_ipv6_model_if_exists,
                             get_rtbh_model_if_exists, get_user_actions,
                             get_user_communities, get_user_nets,
-                            insert_initial_communities, remove_ddp_rules_by_flowspec_rule_id)
+                            insert_initial_communities, remove_ddp_rules_by_flowspec_rule_id, get_presets)
 from flowapp.output import (ROUTE_MODELS, RULE_TYPES, announce_route,
                             log_route, log_withdraw)
 from flowapp.utils import (flash_errors, get_state_by_time, quote_to_ent,
@@ -341,6 +341,8 @@ def ipv4_rule():
     form.action.default = 0
     form.net_ranges = net_ranges
 
+    presets = get_presets()
+
     if request.method == 'POST' and form.validate():
 
         model = get_ipv4_model_if_exists(form.data, 1)
@@ -349,7 +351,7 @@ def ipv4_rule():
             ddp_model = data
         else:
             return render_template('forms/ipv4_rule.j2', form=data,
-                                   action_url=url_for('rules.ipv4_rule'))
+                                   action_url=url_for('rules.ipv4_rule'), presets=presets)
 
         if model:
             model.expires = round_to_ten_minutes(form.expires.data)
@@ -401,7 +403,7 @@ def ipv4_rule():
     default_expires = datetime.now() + timedelta(days=7)
     form.expires.data = default_expires
 
-    return render_template('forms/ipv4_rule.j2', form=form, action_url=url_for('rules.ipv4_rule'))
+    return render_template('forms/ipv4_rule.j2', form=form, action_url=url_for('rules.ipv4_rule'), presets=presets)
 
 
 @rules.route('/add_ipv6_rule', methods=['GET', 'POST'])
@@ -417,6 +419,8 @@ def ipv6_rule():
     form.action.choices = user_actions
     form.action.default = 0
     form.net_ranges = net_ranges
+
+    presets = get_presets()
     
     if request.method == 'POST' and form.validate():
 
@@ -426,7 +430,7 @@ def ipv6_rule():
             ddp_model = data
         else:
             return render_template('forms/ipv6_rule.j2', form=data,
-                                   action_url=url_for('rules.ipv6_rule'))
+                                   action_url=url_for('rules.ipv6_rule'), presets=presets)
 
         if model:
             model.expires = round_to_ten_minutes(form.expires.data)
@@ -479,7 +483,7 @@ def ipv6_rule():
     default_expires = datetime.now() + timedelta(days=7)
     form.expires.data = default_expires
     
-    return render_template('forms/ipv6_rule.j2', form=form, action_url=url_for('rules.ipv6_rule'))
+    return render_template('forms/ipv6_rule.j2', form=form, action_url=url_for('rules.ipv6_rule'), presets=presets)
 
 
 @rules.route('/add_rtbh_rule', methods=['GET', 'POST'])
