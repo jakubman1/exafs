@@ -461,4 +461,16 @@ export class DDPPresetEditForm {
         }
         return null;
     }
+
+    /***
+     * Check if any element on the page has the 'is-invalid' class.
+     *
+     * @returns {boolean} - True if any of the elements on the page have
+     *                      the 'is-invalid' class, false if there are no
+     *                      elements with the class.
+     */
+    private static _formHasErrors(): boolean {
+        const errorFields = document.querySelectorAll('.is-invalid');
+        return errorFields.length > 0;
+    }
 }
