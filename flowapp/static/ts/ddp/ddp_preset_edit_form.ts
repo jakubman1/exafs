@@ -145,6 +145,27 @@ export class DDPPresetEditForm {
     }
 
     /***
+     * Find all duplicate attribute keys in the form for the given field name
+     * and mark them with an error message and the 'is-invalid' class.
+     * If a duplicate is found, marks both the found field and the field
+     * given in params with the error message.
+     *
+     * @param {number} id   - The formId of the checked field
+     * @param {string} name - Name of the checked attribute
+     */
+    public checkForDuplicates(id: number, name: string) {
+        const duplicates = this._findDuplicateKeys(id, name);
+        if (duplicates.length > 0) {
+            for (const d of duplicates) {
+                if (d.formId !== undefined) {
+                    this._setFieldAsDuplicate(d.formId);
+                }
+            }
+            this._setFieldAsDuplicate(id);
+        }
+    }
+
+    /***
      * Get all attribute selection dropdowns and change options to reflect rule type change.
      * If an invalid option for current rule type is selected, the invalid option stays selected,
      * but the selection dropdown is given the "is-invalid" css class, the invalid options gets the
@@ -285,5 +306,47 @@ export class DDPPresetEditForm {
         }
         this.setKeyErrorMessage(id, '');
         select.classList.remove('is-invalid');
+    }
+
+
+    /***
+     * Find all duplicate keys for given attribute name.
+     *
+     * @param {number} sourceId - FormID of the source attribute select.
+     *                            Field with this ID will not be included in the duplicates array
+     * @param {string} name     - Name of the attribute to find duplicates for
+     * @returns {DDPPresetField[]} - An array of fields, that have the same attribute name set.
+     */
+    private _findDuplicateKeys(sourceId: number, name: string): DDPPresetField[] {
+        return this._activeFields.filter((field) => {
+            return field.name === name && field.formId !== sourceId;
+        });
+    }
+
+    /***
+     * Add the 'is-invalid' class to the attribute select in a field
+     * and set error message to 'Duplicate rule field'.
+     *
+     * @param {number} id - FormID of the field to set the message to.
+     */
+    private _setFieldAsDuplicate(id: number) {
+        const field = document.getElementById('fieldSelect' + id);
+        field?.classList.add('is-invalid');
+        this.setKeyErrorMessage(id, 'Duplicate rule field');
+    }
+
+    /***
+     * Check if the duplicate field error is still valid. If not, remove it.
+     *
+     * @param {number} id   - FormID of the field to check
+     * @param {string} name - Name of the attribute selected in the field.
+     */
+    private _clearInvalidDuplicateWarnings(id: number, name: string) {
+        const duplicates = this._findDuplicateKeys(id, name);
+        if (duplicates.length === 1 && duplicates[0].formId !== undefined) {
+            const select = document.getElementById('fieldSelect' + duplicates[0].formId);
+            select?.classList.remove('is-invalid');
+            this.setKeyErrorMessage(duplicates[0].formId, '');
+        }
     }
 }
