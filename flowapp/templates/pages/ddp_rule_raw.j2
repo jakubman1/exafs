@@ -1,0 +1,25 @@
+{% extends 'layouts/default.j2' %}
+
+{% block title %}DDoS Protector rule detail{% endblock %}
+{% block content %}
+  <h2>DDoS Protector returned status {{ status }}</h2>
+
+  <div class="row">
+    <div class="col-12">
+      <h3>Raw data</h3>
+      <code>{{ data }}</code>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-6">
+      <h3>Formatted</h3>
+    <ul class="list-group">
+      {% for key, value in data.items() %}
+        <li class="list-group-item"><span class="fw-bold">{{ key }}</span>: {{ value }}</li>
+      {% endfor %}
+    </ul>
+    </div>
+  </div>
+
+{% endblock %}
