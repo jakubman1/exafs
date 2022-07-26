@@ -4,9 +4,9 @@
   "description": "Tool for creation, validation and execution of ExaBGP messages",
   "main": "flowapp/static/ts/index.ts",
   "scripts": {
-    "build": "npm run build-ts && npm run build-bootstrap",
+    "build": "npm run build-ts && npm run build-styles",
     "build-ts": "npx webpack",
-    "build-bootstrap": "npx sass flowapp/static/scss/bootstrap.scss flowapp/static/bootstrap.min.css --style compressed",
+    "build-styles": "npx sass flowapp/static/scss/style.scss flowapp/static/style.min.css --style compressed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
