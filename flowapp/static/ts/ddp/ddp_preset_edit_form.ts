@@ -1,4 +1,11 @@
-import {DDPPreset, DDPPresetField, DDPRuleType, getPresetField, getPresetFieldsByRuleType} from "./ddp_presets";
+import {
+    DDPPreset,
+    DDPPresetField,
+    DDPRuleType, FieldRequirements,
+    getPresetField,
+    getPresetFieldsByRuleType,
+    PresetFieldRequirementRelationship
+} from "./ddp_presets";
 import {createPresetFormField} from "./ddp_inputs";
 import {createChild} from "../renderer";
 
@@ -162,6 +169,28 @@ export class DDPPresetEditForm {
                 }
             }
             this._setFieldAsDuplicate(id);
+        }
+    }
+
+    /***
+     * Check if field requirements of all fields are satisfied.
+     * If not, add error messages to them.
+     */
+    public checkFieldRequirements() {
+        for (const f of this._activeFields) {
+            if (f.requires_fields && f.formId !== undefined) {
+                const reqs = this._findUnsatisfiedRequirements(f);
+                if (reqs.length !== 0) {
+                    let msg = '';
+                    for (let r of reqs) {
+                        msg += ', ' + r;
+                    }
+                    msg = msg.slice(2);
+                    this.setKeyErrorMessage(f.formId, "Requirements not satisfied: " + msg);
+                } else {
+                    this.setKeyErrorMessage(f.formId, '');
+                }
+            }
         }
     }
 
@@ -348,5 +377,88 @@ export class DDPPresetEditForm {
             select?.classList.remove('is-invalid');
             this.setKeyErrorMessage(duplicates[0].formId, '');
         }
+    }
+
+    /***
+     * Check field requirements and return error messages if some requirements
+     * are not satisfied.
+     *
+     * @param {DDPPresetField} checkedField - A field to check requirements for
+     * @returns {string[]}                  - An array of error messages for unsatisfied requirements
+     */
+    private _findUnsatisfiedRequirements(checkedField: DDPPresetField): string[] {
+        let notSatisfied: string[] = []
+        const field = document.getElementById('presetInput' + checkedField?.formId) as HTMLInputElement;
+        if (checkedField.requires_fields) {
+            for (const r of checkedField.requires_fields) {
+                if (r.rule_types.includes((this._ruleType))) {
+                    const idx = this._activeFields.findIndex((field) => {
+                        return field.name == r.name;
+                    });
+                    if (idx == -1) {
+                        if (r.relationship == PresetFieldRequirementRelationship.IsSet) {
+                            notSatisfied.push(r.name + ' has to be set');
+                        }
+                    } else {
+                        const val = document.getElementById('presetInput' + this._activeFields[idx].formId) as HTMLInputElement;
+                        if (val && field) {
+                            const msg = DDPPresetEditForm._handleRequirement(val, r, field);
+                            if (msg !== null) {
+                                notSatisfied.push(msg);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return notSatisfied;
+    }
+
+    /***
+     * Check the requirement based on its relationship and create an error message
+     * based on the unsatisfied requirements.
+     *
+     * @param {HTMLInputElement} val   - Input element containing the value of the checked field
+     * @param {FieldRequirements} r    - Requirements for the checked field
+     * @param {HTMLInputElement} field - Input field that the checked field has the relationship with
+     * @returns {string|null}          - Error message if the requirement was _not_ satisfied, null otherwise.
+     */
+    private static _handleRequirement(val: HTMLInputElement, r: FieldRequirements, field: HTMLInputElement): string | null {
+        const value = val.value;
+        switch (r.relationship) {
+            case PresetFieldRequirementRelationship.IsNotSet:
+                return (r.name + ' can not be set with this field');
+            case PresetFieldRequirementRelationship.IsGreater:
+                if (value <= field.value) {
+                    return (r.name + ' has to be greater than this field');
+                }
+                break;
+            case PresetFieldRequirementRelationship.IsLower:
+                if (value >= field.value) {
+                    return (r.name + ' has to be lower than this field');
+                }
+                break;
+            case PresetFieldRequirementRelationship.IsGreaterOrEqual:
+                if (value < field.value) {
+                    return (r.name + ' has to be greater or equal to this field');
+                }
+                break;
+            case PresetFieldRequirementRelationship.IsLowerOrEqual:
+                if (value > field.value) {
+                    return (r.name + ' has to be lower or equal to this field');
+                }
+                break;
+            case PresetFieldRequirementRelationship.IsEqual:
+                if (value != field.value) {
+                    return (r.name + ' has to be equal to this field');
+                }
+                break;
+            case PresetFieldRequirementRelationship.IsNotEqual:
+                if (value == field.value) {
+                    return (r.name + ' has to be different from this field');
+                }
+                break;
+        }
+        return null;
     }
 }
