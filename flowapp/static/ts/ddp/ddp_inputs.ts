@@ -1,6 +1,7 @@
 import {DDPPresetField, EnumPresetFieldOpts, PresetFieldType, RangePresetFieldOpts, SliderType} from "./ddp_presets";
 import {logarithmicValueFromPos, posFromLogarithmicValue} from "../logscale";
 import {formatSIUnitNumber} from "../utils";
+import {validateField} from "./validators";
 
 
 /***
@@ -179,5 +180,29 @@ export function setErrorMessage(id: number, message: string) {
     const errorElem = document.getElementById('form-value-error-msg' + id);
     if (errorElem) {
         errorElem.innerHTML = message;
+    }
+}
+
+/***
+ * Update the range slider value text to a new value based on the range slider value.
+ * Adds a unit and if the slider is logarithmic, calculates the correct value
+ *
+ * @param {HTMLInputElement} rangeElem - Reference to the input element
+ * @param {number} id                  - Form ID of the field
+ * @param {number} minVal              - Minimum possible value of the range slider
+ * @param {number} maxVal              - Maximum possible value of the range slider
+ * @param {SliderType} type            - Type of the slider (linear/logarithmic)
+ * @param {string} unit                - Unit to show next to the value
+ */
+export function updateRangeValText(rangeElem: HTMLInputElement, id: number, minVal: number, maxVal: number, type: SliderType, unit: string = '') {
+    const target = document.getElementById('rangeVal' + id);
+    if (target) {
+        if (type === SliderType.LINEAR) {
+            target.innerText = formatSIUnitNumber(rangeElem.valueAsNumber, 2, unit);
+        }
+        else if (type === SliderType.LOGARITHMIC) {
+            target.innerText = formatSIUnitNumber(logarithmicValueFromPos(rangeElem.valueAsNumber, minVal, maxVal), 2, unit);
+        }
+        validateField(rangeElem.name.slice(4), rangeElem, id)
     }
 }
