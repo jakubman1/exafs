@@ -1,13 +1,19 @@
 import {
     DDPPreset,
     DDPPresetField,
-    DDPRuleType, FieldRequirements,
+    DDPRuleType,
+    FieldRequirements,
     getPresetField,
     getPresetFieldsByRuleType,
-    PresetFieldRequirementRelationship
+    PresetFieldRequirementRelationship,
+    PresetFieldType,
+    RangePresetFieldOpts,
+    SliderType
 } from "./ddp_presets";
 import {createPresetFormField} from "./ddp_inputs";
 import {createChild} from "../renderer";
+import {logarithmicValueFromPos} from "../logscale";
+import {HTTP_METHOD, sendFormDataToBackend} from "../http";
 
 export class DDPPresetEditForm {
     /** CSS ID of a parent element to render the form to */
@@ -94,6 +100,58 @@ export class DDPPresetEditForm {
             }
         }
     }
+
+    /***
+     * Collect the data from the preset form and sent them to backend to save them to the database.
+     *
+     * @param {string} csrf_token          - The CSRF token for the form
+     * @param {string} callbackUrl         - URL to send the data to
+     * @param {string} successRedirectUrl  - URL to redirect the user to, if the request was successful
+     * @param {string|undefined} saveBtnId - ID of the save button. Will display loading animation.
+     *                                       If not set, no loading animation will be displayed.
+     */
+    public save(csrf_token: string, callbackUrl: string, successRedirectUrl: string, saveBtnId?: string) {
+        this.checkFieldRequirements();
+        if (DDPPresetEditForm._formHasErrors()) {
+            alert('Preset has errors! Fix them before saving.');
+            return;
+        }
+        this.changes = false;  // Stop preventing redirect
+        let data = new FormData();
+        const presetName = this._getPresetName();
+        if (presetName === null) {
+            return;
+        }
+        data.append('name', presetName);
+        data.append('rule_type', this._ruleType.toString());
+        data.append('csrf_token', csrf_token);
+        const editable = this._collectFormData(data);
+        data.append('editable', editable);
+
+        let btnOriginalContent = '';
+        let btn: HTMLElement | null = null;
+        if (saveBtnId) {
+            btn = document.getElementById(saveBtnId);
+        }
+        if (btn) {
+            btnOriginalContent = btn.innerHTML;
+            btn.setAttribute('disabled', '');
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...`;
+        }
+        sendFormDataToBackend(data, callbackUrl, HTTP_METHOD.POST)
+            .then((response: Response) => {
+                this._handleSaveResponse(response, successRedirectUrl, btn)
+            })
+            .catch((error: string) => {
+                console.error(error)
+                if (btn) {
+                    btn.innerHTML = btnOriginalContent;
+                    btn.removeAttribute('disabled');
+                }
+                alert('Could not save preset: ' + error);
+            });
+    }
+
 
     /***
      * Handle rule type change - set the internal variable, reload the available
@@ -472,5 +530,105 @@ export class DDPPresetEditForm {
     private static _formHasErrors(): boolean {
         const errorFields = document.querySelectorAll('.is-invalid');
         return errorFields.length > 0;
+    }
+
+
+    /***
+     * Iterate over all fields in the form and add their value to the
+     * form data. Converts logarithmic sliders values to correct values
+     * and checkbox groups to comma-separated strings.
+     *
+     * For each field check, if user can edit it.
+     *
+     * @param {FormData} data - FormData to collect the data to. After this
+     *                          function, the data will be modified.
+     * @returns {string}      - Comma-separated attribute names, that are set as
+     *                          fields that user can edit when using the preset.
+     *
+     */
+    private _collectFormData(data: FormData): string {
+        let editable = '';
+        for (let field of this._activeFields) {
+            const currentField = document.getElementById(`presetInput${field.formId}`);
+            const currentKey = document.getElementById(`fieldSelect${field.formId}`) as HTMLSelectElement;
+            const userEditable = document.getElementById(`userEditable${field.formId}`) as HTMLInputElement;
+            if (currentField && currentKey && userEditable) {
+                if (userEditable.checked) {
+                    editable += currentKey.value + ';';
+                }
+                if (currentField.hasChildNodes() && currentField.tagName.toLowerCase() !== 'select') {
+                    data.append(currentKey.value, DDPPresetEditForm._checkboxesToStr(currentField));
+                } else {
+                    let c = currentField as HTMLInputElement;
+                    if (field.type === PresetFieldType.RANGE && field.options) {
+                        const opts = field.options as RangePresetFieldOpts;
+                        let val = c.valueAsNumber;
+                        if (opts.type === SliderType.LOGARITHMIC) {
+                            val = logarithmicValueFromPos(c.valueAsNumber, opts.low, opts.high)
+                        }
+                        data.append(currentKey.value, val.toString());
+                    } else {
+                        data.append(currentKey.value, c.value.toString());
+                    }
+                }
+            }
+        }
+        return editable;
+    }
+
+    /***
+     * Get all checkbox inputs that are grandchildren of `parent` and
+     * add their values to a comma-separated string for each checkbox
+     * that is checked.
+     *
+     * Assumes the parent to contain Bootstrap 5 checkbox structures with
+     * <div class="form-check"> being the parent of each checkbox input.
+     * Therefore, this function looks for grandchildren,
+     * not children of the parent element.
+     * https://getbootstrap.com/docs/5.0/forms/checks-radios/#checks
+     *
+     * @param {HTMLElement} parent - Parent HTML element for the checkboxes
+     * @returns {string}           - comma-separated values of checked checkboxes
+     */
+    private static _checkboxesToStr(parent: HTMLElement): string {
+        let val = '';
+        for (let child of parent.children) {
+            for (let grandchild of child.children) {
+                if (grandchild.tagName.toLowerCase() === 'input' && grandchild.getAttribute('type') === 'checkbox') {
+                    const c = grandchild as HTMLInputElement
+                    if (c.checked) {
+                        val += c.value + ','
+                    }
+                }
+            }
+        }
+        return val;
+    }
+
+    /***
+     * Handle the response from the backend after saving the rule preset.
+     * Redirects to successRedirectUrl on success, shows an error on error.
+     *
+     * @param {Response} response         - Response from the backend
+     * @param {string} successRedirectUrl - URL to redirect to on success
+     * @param {HTMLElement|null} btn      - Save button element reference.
+     */
+    private _handleSaveResponse(response: Response, successRedirectUrl: string, btn: HTMLElement | null) {
+        if (response.status == 200 || response.status == 201) {
+            if (btn) {
+                btn.innerHTML = 'Saved';
+                btn.removeAttribute('disabled');
+            }
+            window.location.href = successRedirectUrl;
+        } else {
+            response.text().then(text => {
+                alert('Server returned error status ' + response.status + '. Check the console for more details');
+                console.error(text);
+                if (btn) {
+                    btn.innerHTML = 'Errored';
+                    btn.removeAttribute('disabled');
+                }
+            });
+        }
     }
 }
