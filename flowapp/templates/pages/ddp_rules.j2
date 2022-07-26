@@ -57,7 +57,8 @@
                     {% if 3 in session['user_role_ids'] %}
                         <td>
                             {% if rule.ddp_rule_id %}
-                                <button class="btn btn-outline-secondary btn-sm">Check rule on device</button>
+                                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('ddos-protector.check_ddp_rule', rule_extras_id=rule.id) }}">
+                                  Check rule on device</a>
                                 <a class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove from device"
                                 href="{{ url_for('ddos-protector.delete_ddp_rule', rule_extras_id=rule.id) }}">
                                     <i class="bi bi-shield-fill-x"></i>
