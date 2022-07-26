@@ -33,7 +33,7 @@
                             <td><code>{{ device['redirect_command'] }}</code></td>
                             <td>{{ device['key_header'] }}</td>
                             <td>
-                                <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                <a href="{{ url_for('ddos-protector.rules', device=device['id']) }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                 title="{% for rule in device['rules'] %}{{ rule['ddp_rule_id']}} ({{ rule['preset']['name'] }})<br> {% endfor %}">
                                     {{ device['rules'] | length}}
                                 </a>
