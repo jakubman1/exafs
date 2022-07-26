@@ -1,9 +1,9 @@
 {% extends 'layouts/default.j2' %}
-{% from 'forms/macros.j2' import render_field %}
+{% from 'forms/macros.j2' import render_field, render_ddp_preset_selection %}
 {% block title %}Add IPv4 rule{% endblock %}
 {% block content %}
   <h2>{{ title or 'New'}} IPv4 rule</h2>
-  <form action="{{ action_url }}" method="POST">
+  <form action="{{ action_url }}" method="POST" onsubmit="ExaFS.beforeIPFormSend(this, '{{ form.dest.id }}', '{{ form.protocol.id }}')" id="ipv4-form">
   {{ form.hidden_tag() if form.hidden_tag }}
   <div class="row">
     <div class="col-sm-8">
@@ -53,7 +53,7 @@
 
   <div class="row">
     <div class="col-sm-6">
-      {{ render_field(form.action) }}
+      {{ render_field(form.action, onchange="ExaFS.showFieldIf(this.value, '4', 'ddp-form-wrapper')") }}
     </div>
     <div class="col-sm-6">
       <div class="form-group">
@@ -81,6 +81,13 @@
   <div class="row">
     <div class="col-sm-12">
          {{ render_field(form.comment) }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <div id="ddp-form-wrapper" class="d-none">
+        {{ render_ddp_preset_selection(presets, form.data) }}
+      </div>
     </div>
   </div>
 
