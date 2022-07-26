@@ -59,6 +59,7 @@ export class DDPPresetEditForm {
                 }
             }
         });
+        this.checkFieldRequirements();
     }
 
     /***
@@ -79,6 +80,7 @@ export class DDPPresetEditForm {
             this._activeFields.push(field);
             this._maxId++;
             createChild(wrapped, this.containerId);
+            this.checkForDuplicates(field.formId, name);
             return field.formId;
         }
         return -1;
@@ -96,6 +98,7 @@ export class DDPPresetEditForm {
             container.parentElement?.removeChild(container);
             const index = this._activeFields.findIndex(p => p.formId === id);
             if (index !== -1) {
+                this._clearInvalidDuplicateWarnings(id, this._activeFields[index].name)
                 this._activeFields.splice(index, 1);
             }
         }
@@ -304,7 +307,7 @@ export class DDPPresetEditForm {
         <hr class="d-md-none my-2">
         <div class="row my-3 fade-in-fwd">
             <div class="col-sm-12 col-md-4 my-1">
-            <select class="form-select" id="fieldSelect${id}" onChange="${this.varName}.updatePresetFormField(this, ${id})">
+            <select class="form-select" id="fieldSelect${id}" onChange="${this.varName}.updatePresetInputField(this, ${id})">
                 ${this._createFieldSelectionDropdownOptions(initKey)}
         </select>
         <p class="form-text text-danger" id="form-error-msg${id}"></p>
