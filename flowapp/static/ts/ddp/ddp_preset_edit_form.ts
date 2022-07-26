@@ -253,4 +253,18 @@ export class DDPPresetEditForm {
         }
         return this.presetNameInput.value;
     }
+
+    /***
+     * Returns index from the activeFields _array by the formId attribute.
+     * Returns -1 if given ID is not in activeFields.
+     *
+     * @param {number} id - The numeric id of the element to find
+     * @returns {number}  - Index of the searched element in the `_activeFields` array
+     *                      or -1 if the element was not found.
+     */
+    private _getFieldIndexById(id: number): number {
+        return this._activeFields.findIndex((field) => {
+            return field.formId === id;
+        })
+    }
 }
