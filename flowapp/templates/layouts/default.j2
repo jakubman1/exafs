@@ -47,7 +47,7 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Admin
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <ul class="dropdown-menu scale-in-top" aria-labelledby="navbarDropdown">
                   <li><a class="dropdown-item" href="{{ url_for('admin.log') }}">Commands Log</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">Users</a></li>
@@ -66,7 +66,7 @@
                      role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       DDoS Protector
                   </a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdownDDP">
+                  <ul class="dropdown-menu scale-in-top" aria-labelledby="navbarDropdownDDP">
                     <li>
                       <a class="dropdown-item"
                          href="{{ url_for('ddos-protector.rules') }}">Rules</a>
