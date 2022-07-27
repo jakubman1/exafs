@@ -1,4 +1,4 @@
-
+{% from 'macros.j2' import nav_link %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -37,10 +37,10 @@
           <div class="collapse navbar-collapse" id="navbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               {% if session['can_edit'] %}
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('rules.ipv4_rule') }}">Add IPv4</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('rules.ipv6_rule') }}">Add IPv6</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('rules.rtbh_rule') }}">Add RTBH</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('api_keys.all') }}">API Key</a></li>
+                {{ nav_link('Add IPv4' ,'rules.ipv4_rule') }}
+                {{ nav_link('Add IPv6' ,'rules.ipv6_rule') }}
+                {{ nav_link('Add RTBH' ,'rules.rtbh_rule') }}
+                {{ nav_link('API Key' ,'api_keys.all') }}
               {% endif %}
               {% if 3 in session['user_role_ids'] %}
               <li class="nav-item dropdown">
