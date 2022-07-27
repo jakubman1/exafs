@@ -1,11 +1,13 @@
+@import "colors";
+
 body {
   padding-top: 70px;
   padding-bottom: 30px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4286;
-  color: #333;
-  background-color: #fff;
+  color: $color-text;
+  background-color: $color-body-bg;
 }
 
 .theme-dropdown .dropdown-menu {
@@ -48,8 +50,8 @@ body {
 }
 
 #dashboard-nav a.active {
-  color: white;
-  background-color: #1b67ad;
+  color: $color-text-inverse;
+  background-color: $color-primary;
 }
 
 #dashboard-nav h1 {

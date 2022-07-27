@@ -1,10 +1,12 @@
+@import "colors";
+
 .context-menu {
   position: absolute;
   z-index: 10;
   display: none;
   width: 240px;
   padding: 12px 0;
-  background-color: #fff;
+  background-color: $color-item-bg;
   border: solid 1px #dfdfdf;
   box-shadow: 1px 1px 2px #cfcfcf;
 }
@@ -31,11 +33,11 @@
 .context-menu__link {
   display: block;
   padding: 4px 12px;
-  color: #06a;
+  color: $color-primary;
   text-decoration: none;
 }
 
 .context-menu__link:hover {
-  color: #fff;
-  background-color: #06a;
+  color: $color-text-inverse;
+  background-color: $color-primary;
 }

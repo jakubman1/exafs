@@ -1,3 +1,5 @@
+@import "colors";
+
 tr.bottom_row > td {
   padding-bottom: 1em;
   border-bottom: solid black 1px;
@@ -21,7 +23,7 @@ tbody .bi {
 
 .ip-table thead {
   cursor: pointer;
-  background-color: #adadad;
+  background-color: $color-table-heading;
 }
 
 .sort-direction {
@@ -33,18 +35,18 @@ tbody .bi {
 }
 
 .asc {
-  border-bottom: 5px solid black;
+  border-bottom: 5px solid $color-text-heading;
 }
 
 .desc {
-  border-top: 5px solid black;
+  border-top: 5px solid $color-text-heading;
 }
 
 .table-sorter a {
-  color: #0a0a0a;
+  color: $color-text-heading;
   text-decoration: none;
 }
 
 .table-sorter a:visited {
-  color: #0a0a0a;
+  color: $color-text-heading;
 }
