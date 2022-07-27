@@ -1,3 +1,9 @@
 // Import bootstrap
 @import "../../../node_modules/bootstrap/scss/bootstrap";
+
 // Import local styles
+@import "context_menu";
+@import "forms";
+@import "layout";
+@import "tables";
+@import "typing";

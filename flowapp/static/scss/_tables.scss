@@ -1,0 +1,50 @@
+tr.bottom_row > td {
+  padding-bottom: 1em;
+  border-bottom: solid black 1px;
+}
+
+tr.bottom_row > th {
+  padding-bottom: 1em;
+  border-bottom: solid black 1px;
+}
+
+td.bottom_row {
+  padding-bottom: 1em;
+  border-bottom: solid black 1px;
+}
+
+tbody .bi {
+  -webkit-text-stroke-width: 1px;
+  font-size: 105%;
+  color: white;
+}
+
+.ip-table thead {
+  cursor: pointer;
+  background-color: #adadad;
+}
+
+.sort-direction {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+.asc {
+  border-bottom: 5px solid black;
+}
+
+.desc {
+  border-top: 5px solid black;
+}
+
+.table-sorter a {
+  color: #0a0a0a;
+  text-decoration: none;
+}
+
+.table-sorter a:visited {
+  color: #0a0a0a;
+}
