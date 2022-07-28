@@ -18,3 +18,24 @@ export function showFieldIf(sourceValue: any, showValue: any, targetID: string) 
         elem?.classList.remove('d-none');
     }
 }
+
+/***
+ * Can be called as a keypress event listener onany text input.
+ * Listens to all key presses and if the key value is
+ * equal to the `key` parameter, the focus is switched to an input field
+ * identified by the `focusID` parameter. The target key is not inputted to the
+ * original field nor the target field.
+ *
+ * @param {KeyboardEvent}   event   - Event that triggered this function
+ * @param {string}          key     - Keypress to listen to, should be the key name (uses event.key)
+ * @param {string}          focusId - ID of the target input, that receives focus after the key is pressed
+ */
+export function switchFocusOnKeypress(event: KeyboardEvent, key: string, focusId: string) {
+    if (event.key == key) {
+        event.preventDefault();
+        const input = document.getElementById(focusId) as HTMLInputElement;
+        if (input) {
+            input.focus();
+        }
+    }
+}
