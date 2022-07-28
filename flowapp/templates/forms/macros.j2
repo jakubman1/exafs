@@ -226,3 +226,38 @@
         {% endif %}
     </script>
 {% endmacro %}
+
+{# Renders HTML for the preset selection window.
+  Hidden by default, to show, call the ExaFS.fillOranization function
+
+  Params:
+    - net_list: List of IP ranges available to the current user.
+#}
+{% macro fill_org_form(net_list) %}
+    <div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="orgSelectModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select organization range</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="orgSelect">Select a range from available organizations</label>
+                    <select id="orgSelect" class="form-select">
+                        <option selected disabled>--- Select a range ---</option>
+                        {% for net in net_list %}
+                            <option value="{{ net }}">{{ net }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                    </button>
+                    <button type="button" class="btn btn-primary" id="fill-org-btn">Use range
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
