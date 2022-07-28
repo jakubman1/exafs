@@ -30,6 +30,24 @@
             </td>
             <td>
                 {{ rule.action.name }}
+              {% if rule.ddp_extras %}
+                <a href="{% if rtype_int == 4 %} {{ url_for('ddos-protector.rules', flowspec4=rule.id) }} {% elif rtype_int == 6 %} {{ url_for('ddos-protector.rules', flowspec6=rule.id) }} {% endif %}">
+                    <span class="mx-1 text-success fs-5" data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Linked to a DDoS Protector rule (DDoS Protector rule ID:
+                          {% for extras in rule.ddp_extras %}
+                            {{ extras.ddp_rule_id }},
+                          {% endfor %}
+                          )">
+                    <i class="bi bi-shield-fill-check"></i>
+                  </span>
+                </a>
+                {% else %}
+                    {% if rule.action.name == 'Redirect to DDoS Protector' %}
+                        <span class="mx-1 text-warning fs-5" data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="Redirecting to DDoS Protector without any DDoS Protector rules linked to the flowspec rule. DDoS Protector will mitigate the traffic based on existing rules.">
+                    <i class="bi bi-shield-fill-exclamation"></i></span>
+                    {% endif %}
+                {% endif %}
             </td>
             <td>
                 {{ rule.flags}}
