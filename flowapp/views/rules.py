@@ -109,8 +109,14 @@ def reactivate_rule(rule_type, rule_id):
             field.render_kw = {'disabled': 'disabled'}
 
     action_url = url_for('rules.reactivate_rule', rule_type=rule_type, rule_id=rule_id)
+    presets = get_presets()
 
-    return render_template(DATA_TEMPLATES[rule_type], form=form, action_url=action_url, editing=True, title="Update")
+    return render_template(DATA_TEMPLATES[rule_type],
+                           form=form,
+                           action_url=action_url,
+                           editing=True,
+                           title="Update",
+                           presets=presets)
 
 
 @rules.route('/delete/<int:rule_type>/<int:rule_id>', methods=['GET'])
@@ -266,7 +272,7 @@ def group_update():
     action_url = url_for('rules.group_update_save', rule_type=rule_type_int)
 
     return render_template(DATA_TEMPLATES[rule_type_int], form=form, action_url=action_url, editing=True,
-                           title="Group Update")
+                           title="Group Update", presets=get_presets())
 
 
 @rules.route('/group-save-update/<int:rule_type>', methods=['POST'])
