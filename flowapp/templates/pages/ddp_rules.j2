@@ -28,7 +28,7 @@
                         <td>{{ rule.flowspec4_id }} / {{ rule.flowspec6_id }}</td>
                         <td>{{ rule.preset.name }}
                             {% set preset = rule.preset.as_dict() %}
-                            <button role="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip"
+                            <button role="button" class="btn btn-link btn-sm" data-bs-toggle="tooltip"
                                     data-bs-placement="top" title="View preset values"
                                     onclick="ExaFS.showPresetModal('{{ rule.preset.name }}', {{ preset['fields'] }}, {{ preset['editable'] }} )">
                                 <i class="bi bi-zoom-in"></i>
