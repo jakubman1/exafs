@@ -2,9 +2,9 @@
 {% block title %}Flowspec Users{% endblock %}
 {% block content %}
     <h2>Commands log / latest on top</h2>
-    {% if logs %}
+    {% if logs and logs.total > 0 %}
         <h5>
-        {% if logs.has_prev %}<a href="{{ url_for('admin.log', page=logs.prev_num) }}">&lt;&lt; Newer logs</a>{% else %}&lt;&lt; Newer logs{% endif %} | 
+        {% if logs.has_prev %}<a href="{{ url_for('admin.log', page=logs.prev_num) }}">&lt;&lt; Newer logs</a>{% else %}&lt;&lt; Newer logs{% endif %} |
         {% if logs.has_next %}<a href="{{ url_for('admin.log', page=logs.next_num) }}">Older logs &gt;&gt;</a>{% else %}Older logs &gt;&gt;{% endif %}
         </h5>
         <table class="table table-hover">
@@ -18,17 +18,22 @@
         {% for log in logs.items %}
             <tr>
             <td>{{ log.time|strftime }}</td>
-            <td>{{ log.task }}</td>
+            <td><code>{{ log.task }}</code></td>
             <td>{{ log.rule_type }}</td>
             <td>{{ log.rule_id }}</td>
             <td>{{ log.author }}</td>
             </tr>
         {% endfor %}
         </table>
-        <h5>
-        {% if logs.has_prev %}<a href="{{ url_for('admin.log', page=logs.prev_num) }}">&lt;&lt; Newer logs</a>{% else %}&lt;&lt; Newer logs{% endif %} | 
+      {% if logs.page == logs.pages %}
+        <p class="text-center small">End of logs</p>
+      {% else %}
+         <h5>
+        {% if logs.has_prev %}<a href="{{ url_for('admin.log', page=logs.prev_num) }}">&lt;&lt; Newer logs</a>{% else %}&lt;&lt; Newer logs{% endif %} |
         {% if logs.has_next %}<a href="{{ url_for('admin.log', page=logs.next_num) }}">Older logs &gt;&gt;</a>{% else %}Older logs &gt;&gt;{% endif %}
         </h5>
+      {% endif %}
+
     {% else %}
         <h3>No logs for last two days</h3>
     {% endif %}
