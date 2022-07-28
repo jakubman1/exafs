@@ -39,17 +39,20 @@
             </td>
             <td>
             {% if editable %}
-                <a class="btn btn-info btn-sm" href="{{ url_for('rules.reactivate_rule', rule_type=rtype_int, rule_id=rule.id) }}" role="button">
-                    <i class="bi bi-clock table-icon"></i>
-                </a>
-                <a class="btn btn-danger btn-sm" href="{{ url_for('rules.delete_rule', rule_type=rtype_int, rule_id=rule.id) }}" role="button">
-                    <i class="bi bi-x"></i>
-                </a>
-            {% endif %}
-            {% if rule.comment %}
-                <button type="button" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="{{ rule.comment }}">
+                    <a class="btn btn-primary btn-sm"
+                       href="{{ url_for('rules.reactivate_rule', rule_type=rtype_int, rule_id=rule.id) }}"
+                       role="button">
+                        <i class="bi bi-clock"></i>
+                    </a>
+                    <a class="btn btn-danger btn-sm"
+                       href="{{ url_for('rules.delete_rule', rule_type=rtype_int, rule_id=rule.id) }}" role="button">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+                {% if rule.comment %}
+                <span class="mx-1 fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ rule.comment }}">
                     <i class="bi bi-chat-left-text-fill"></i>
-                </button>
+                </span>
             {% endif %}
             </td>
 
@@ -91,17 +94,17 @@
     </td>
     <td>
         {% if editable %}
-        <a class="btn btn-info btn-sm" href="{{ url_for('rules.reactivate_rule', rule_type=1, rule_id=rule.id) }}" role="button">
-            <i class="bi bi-clock table-icon"></i>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('rules.reactivate_rule', rule_type=1, rule_id=rule.id) }}" role="button">
+            <i class="bi bi-clock"></i>
         </a>
         <a class="btn btn-danger btn-sm" href="{{ url_for('rules.delete_rule', rule_type=1, rule_id=rule.id) }}" role="button">
-            <i class="bi bi-x"></i>
+            <i class="bi bi-x-lg"></i>
         </a>
         {% endif %}
         {% if rule.comment %}
-           <button type="button" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="{{ rule.comment }}">
-              <i class="bi bi-chat-left-text-fill"></i>
-           </button>
+           <span class="mx-1 fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ rule.comment }}">
+                <i class="bi bi-chat-left-text-fill"></i>
+            </span>
          {% endif %}
     </td>
      {% if editable and group_op %}
