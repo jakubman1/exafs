@@ -2,17 +2,17 @@
 
 {% block title %}DDoS Protector rule detail{% endblock %}
 {% block content %}
-  <h2>DDoS Protector returned status {{ status }}</h2>
+    <h2>DDoS Protector returned status {{ status }}</h2>
 
-  <div class="row">
+    <div class="row">
     <div class="col-12">
       <h3>Raw data</h3>
       <code>{{ data }}</code>
     </div>
-  </div>
+    </div>
 
   <div class="row">
-    <div class="col-sm-12 col-md-6">
+    <div class="col-12">
       <h3>Formatted</h3>
     <ul class="list-group">
       {% for key, value in data.items() %}
@@ -20,6 +20,6 @@
       {% endfor %}
     </ul>
     </div>
-  </div>
+    </div>
 
 {% endblock %}

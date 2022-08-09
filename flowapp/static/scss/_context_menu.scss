@@ -1,0 +1,43 @@
+@import "colors";
+
+.context-menu {
+  position: absolute;
+  z-index: 10;
+  display: none;
+  width: 240px;
+  padding: 12px 0;
+  background-color: $color-item-bg;
+  border: solid 1px #dfdfdf;
+  box-shadow: 1px 1px 2px #cfcfcf;
+}
+
+.context-menu--active {
+  display: block;
+}
+
+.context-menu__items {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.context-menu__item {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.context-menu__item:last-child {
+  margin-bottom: 0;
+}
+
+.context-menu__link {
+  display: block;
+  padding: 4px 12px;
+  color: $color-primary;
+  text-decoration: none;
+}
+
+.context-menu__link:hover {
+  color: $color-text-inverse;
+  background-color: $color-primary;
+}

@@ -18,6 +18,9 @@
         {% else %}
             {% set input_class = 'form-control' %}
         {% endif %}
+        {% if field.errors %}
+            {% set input_class = input_class + ' is-invalid' %}
+        {% endif %}
         {% if tooltip %}
             <div class="input-group">
                 {{ field(class_=input_class, **kwargs) }}
@@ -30,16 +33,54 @@
         {% endif %}
         {% if field.errors %}
             {% for e in field.errors %}
-                <p class="help-block">{{ e }}</p>
+                <p class="help-block text-danger form-text">{{ e }}</p>
             {% endfor %}
         {% endif %}
     </div>
 {%- endmacro %}
 
+{#
+  Render a group of fields for IP adddres input and mask input.
+#}
+{% macro render_ip_and_mask_field_group(fieldIP, fieldMask, label_visible=true, tooltip=False, showFillRange=True, ipKwargs={}, maskKwargs={}) -%}
+    <div class="form-group {% if fieldIP.errors or fieldMask.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}  mb-3">
+        {% if (fieldIP.type != 'HiddenField' and fieldIP.type !='CSRFTokenField') and label_visible %}
+            <label for="{{ fieldIP.id }}" class="control-label">{{ fieldIP.label }}
+                / {{ fieldMask.label }}
 
+            </label>
+            {% if showFillRange %}
+            <a role="button" class="float-end" href="#"
+               onclick="ExaFS.fillOrganization('{{ fieldIP.id }}', '{{ fieldMask.id }}')">Fill
+                range</a>
+            {% endif %}
+        {% endif %}
+        {% set ip_class = 'form-control' %}
+        {% set mask_class = 'form-control ip-mask' %}
+        {% if fieldIP.errors %}
+            {% set ip_class = ip_class + ' is-invalid' %}
+        {% endif %}
+        {% if fieldMask.errors %}
+            {% set mask_class = mask_class + ' is-invalid' %}
+        {% endif %}
+        <div class="input-group">
+            {{ fieldIP(class_=ip_class, onkeypress="ExaFS.switchFocusOnKeypress(event, '/', '" + fieldMask.id + "')", **ipKwargs) }}
+            <span class="input-group-text">/</span>
+            {{ fieldMask(class_=mask_class, **maskKwargs) }}
 
-
-
+        </div>
+        {% if fieldIP.errors %}
+            {% for e in fieldIP.errors %}
+                <p class="help-block text-danger form-text">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+        {% if fieldMask.errors %}
+            {% for e in fieldMask.errors %}
+                <p class="help-block text-danger form-text">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+{%- endmacro %}
 
 {# Renders checkbox fields since they are represented differently in bootstrap
     Params:
@@ -184,4 +225,39 @@
             renderPreset({{ initData['preset'] }}, {{ initData|tojson|safe }});
         {% endif %}
     </script>
+{% endmacro %}
+
+{# Renders HTML for the preset selection window.
+  Hidden by default, to show, call the ExaFS.fillOranization function
+
+  Params:
+    - net_list: List of IP ranges available to the current user.
+#}
+{% macro fill_org_form(net_list) %}
+    <div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="orgSelectModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select organization range</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="orgSelect">Select a range from available organizations</label>
+                    <select id="orgSelect" class="form-select">
+                        <option selected disabled>--- Select a range ---</option>
+                        {% for net in net_list %}
+                            <option value="{{ net }}">{{ net }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                    </button>
+                    <button type="button" class="btn btn-primary" id="fill-org-btn">Use range
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endmacro %}

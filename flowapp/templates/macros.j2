@@ -30,6 +30,24 @@
             </td>
             <td>
                 {{ rule.action.name }}
+              {% if rule.ddp_extras %}
+                <a href="{% if rtype_int == 4 %} {{ url_for('ddos-protector.rules', flowspec4=rule.id) }} {% elif rtype_int == 6 %} {{ url_for('ddos-protector.rules', flowspec6=rule.id) }} {% endif %}">
+                    <span class="mx-1 text-success fs-5" data-bs-toggle="tooltip" data-bs-placement="top"
+                          title="Linked to a DDoS Protector rule (DDoS Protector rule ID:
+                          {% for extras in rule.ddp_extras %}
+                            {{ extras.ddp_rule_id }},
+                          {% endfor %}
+                          )">
+                    <i class="bi bi-shield-fill-check"></i>
+                  </span>
+                </a>
+                {% else %}
+                    {% if rule.action.name == 'Redirect to DDoS Protector' %}
+                        <span class="mx-1 text-warning fs-5" data-bs-toggle="tooltip" data-bs-placement="top"
+                              title="Redirecting to DDoS Protector without any DDoS Protector rules linked to the flowspec rule. DDoS Protector will mitigate the traffic based on existing rules.">
+                    <i class="bi bi-shield-fill-exclamation"></i></span>
+                    {% endif %}
+                {% endif %}
             </td>
             <td>
                 {{ rule.flags}}
@@ -39,17 +57,20 @@
             </td>
             <td>
             {% if editable %}
-                <a class="btn btn-info btn-sm" href="{{ url_for('rules.reactivate_rule', rule_type=rtype_int, rule_id=rule.id) }}" role="button">
-                    <i class="bi bi-clock table-icon"></i>
-                </a>
-                <a class="btn btn-danger btn-sm" href="{{ url_for('rules.delete_rule', rule_type=rtype_int, rule_id=rule.id) }}" role="button">
-                    <i class="bi bi-x"></i>
-                </a>
-            {% endif %}
-            {% if rule.comment %}
-                <button type="button" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="{{ rule.comment }}">
+                    <a class="btn btn-primary btn-sm"
+                       href="{{ url_for('rules.reactivate_rule', rule_type=rtype_int, rule_id=rule.id) }}"
+                       role="button">
+                        <i class="bi bi-clock"></i>
+                    </a>
+                    <a class="btn btn-danger btn-sm"
+                       href="{{ url_for('rules.delete_rule', rule_type=rtype_int, rule_id=rule.id) }}" role="button">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+                {% if rule.comment %}
+                <span class="mx-1 fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ rule.comment }}">
                     <i class="bi bi-chat-left-text-fill"></i>
-                </button>
+                </span>
             {% endif %}
             </td>
 
@@ -91,17 +112,17 @@
     </td>
     <td>
         {% if editable %}
-        <a class="btn btn-info btn-sm" href="{{ url_for('rules.reactivate_rule', rule_type=1, rule_id=rule.id) }}" role="button">
-            <i class="bi bi-clock table-icon"></i>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('rules.reactivate_rule', rule_type=1, rule_id=rule.id) }}" role="button">
+            <i class="bi bi-clock"></i>
         </a>
         <a class="btn btn-danger btn-sm" href="{{ url_for('rules.delete_rule', rule_type=1, rule_id=rule.id) }}" role="button">
-            <i class="bi bi-x"></i>
+            <i class="bi bi-x-lg"></i>
         </a>
         {% endif %}
         {% if rule.comment %}
-           <button type="button" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="{{ rule.comment }}">
-              <i class="bi bi-chat-left-text-fill"></i>
-           </button>
+           <span class="mx-1 fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ rule.comment }}">
+                <i class="bi bi-chat-left-text-fill"></i>
+            </span>
          {% endif %}
     </td>
      {% if editable and group_op %}
@@ -139,4 +160,24 @@
     {% endif %}
     </tr>
 </thead>
+{% endmacro %}
+
+{#  Create a navbar link for an endpoint.
+    If current endpoints is equal to the link endpoint, add the 'active' class.
+#}
+{% macro nav_link(name, endpoint) %}
+    {% if request.view_args %}
+        {% set current_url = url_for(request.endpoint, **request.view_args) %}
+    {% elif request.endpoint %}
+        {% set current_url = url_for(request.endpoint) %}
+    {% else %}
+        {# request.endpoint returns None on 404 error, url_for can not handle None #}
+        {% set current_url = '' %}
+    {% endif %}
+
+    {% if current_url == url_for(endpoint, **kwargs) %}
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for(endpoint, **kwargs) }}">{{ name }}</a></li>
+    {% else %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for(endpoint, **kwargs) }}">{{ name }}</a></li>
+    {% endif %}
 {% endmacro %}

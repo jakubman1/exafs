@@ -28,11 +28,13 @@
             {{ community.role }}
         </td>
         <td>
-        <a class="btn btn-info btn-sm" href="{{ url_for('admin.edit_community', community_id=community.id) }}" role="button">
-            <i class="bi bi-pen"></i>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('admin.edit_community', community_id=community.id) }}" role="button"
+          data-bs-toggle="tooltip" data-bs-placement="top" title="Edit community">
+            <i class="bi bi-pencil-fill"></i>
         </a>
-        <a class="btn btn-danger btn-sm" href="{{ url_for('admin.delete_community', community_id=community.id) }}" role="button">
-            <i class="bi bi-x"></i>
+        <a class="btn btn-danger btn-sm" href="{{ url_for('admin.delete_community', community_id=community.id) }}" role="button"
+          data-bs-toggle="tooltip" data-bs-placement="top" title="Remove community">
+            <i class="bi bi-x-lg"></i>
         </a>
         </td>
         </tr>

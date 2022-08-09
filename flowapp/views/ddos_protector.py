@@ -5,8 +5,8 @@ from flowapp import db
 from flowapp.auth import auth_required, user_or_admin_required, admin_required
 from flowapp.ddp import get_available_ddos_protector_device, create_ddp_rule_from_extras, reactivate_ddp_rule
 from flowapp.ddp_api import remove_rule_from_ddos_protector, get_rule_from_ddos_protector
-from flowapp.forms import DDPDeviceForm
 from flowapp.models import DDPDevice, DDPRulePreset, format_preset, DDPRuleExtras
+from flowapp.forms import DDPDeviceForm
 
 ddos_protector = Blueprint("ddos-protector", __name__, template_folder="templates")
 
@@ -309,3 +309,4 @@ def get_ddp_rule(rule_extras_id):
     else:
         flash("Rule does not have any DDoS Protector device linked to it, can not verify", "alert-danger")
     return redirect(url_for("ddos-protector.rules"))
+

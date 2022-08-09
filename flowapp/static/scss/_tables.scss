@@ -1,0 +1,46 @@
+@import "colors";
+
+tr.bottom_row > td {
+  padding-bottom: 1em;
+  border-bottom: solid black 1px;
+}
+
+tr.bottom_row > th {
+  padding-bottom: 1em;
+  border-bottom: solid black 1px;
+}
+
+td.bottom_row {
+  padding-bottom: 1em;
+  border-bottom: solid black 1px;
+}
+
+.ip-table thead {
+  cursor: pointer;
+  background-color: $color-table-heading;
+}
+
+.sort-direction {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+.asc {
+  border-bottom: 5px solid $color-text-heading;
+}
+
+.desc {
+  border-top: 5px solid $color-text-heading;
+}
+
+.table-sorter a {
+  color: $color-text-heading;
+  text-decoration: none;
+}
+
+.table-sorter a:visited {
+  color: $color-text-heading;
+}
