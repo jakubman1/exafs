@@ -115,3 +115,73 @@
         <button type="submit" class="{{ btn_class }}">{{ action_text }} </button>
     </form>
 {%- endmacro %}
+
+{# Renders a DDoS Protector rule preset selection dialog.
+ Should be enclosed in a <div id="ddp-form-wrapper" class="d-none">
+ and shown by calling the ExaFS.showFieldIf function from the onChange event
+ for the action selection dropdown.
+
+  Params:
+    presets - All available presets
+    initData - Initial form values (used to show correct values when the form is returned with an error message from the server)
+#}
+{% macro render_ddp_preset_selection(presets, initData) %}
+    <div class="row mt-2 mb-4">
+        <div class="col-12">
+            <hr class="mt-2 mb-4">
+        </div>
+
+        <div class="col-sm-12 col-md-6">
+            <label for="preset-select">DDoS Protector mitigation config</label>
+            <select name="preset" id="preset-select" class="form-select"
+                    onChange="renderPreset(this.value)">
+                <option selected disabled>--- Select a mitigation strategy ---</option>
+                <!--<option value="-1">Redirect only (don't add rules to DDoS Protector)</option>-->
+                {% for preset in presets %}
+                    <option value="{{ preset.id }}" {% if initData['preset'] is not none and initData['preset'] == preset.id %}
+                    selected {% endif %}>
+                        {{ preset.name }}</option>
+                {% endfor %}
+            </select>
+            <span class="form-text text-danger" id="preset-select-error"></span>
+        </div>
+    </div>
+    <div class="row my-2" id="advanced-opts-toggle-wrapper">
+        <a data-bs-toggle="collapse" href="#rule-data-wrapper" role="button" aria-expanded="false"
+           id="advanced-opts-toggle" onClick="toggleAdvancedOpts()"
+           aria-controls="rule-data-wrapper">Show advanced options <i class="bi bi-caret-down-fill"></i></a>
+    </div>
+    <div class="row">
+        <div class="ddp-preset-detail-container collapse" id="rule-data-wrapper">
+
+        </div>
+
+    </div>
+    <script type="text/javascript">
+        const presets = {{ presets|tojson|safe }};
+        let advancedOptsOpen = false;
+        let presetForm = new ExaFS.DDPPresetSelectForm('rule-data-wrapper');
+
+        function toggleAdvancedOpts() {
+            advancedOptsOpen = !advancedOptsOpen;
+            ExaFS.changeAdvancedOptionsText('advanced-opts-toggle', advancedOptsOpen);
+        }
+
+        function renderPreset(id, initData={}) {
+            if (id === '-1') {
+                presetForm.setPreset({name: 'Redirect only', id: -1, editable: [], fields: {rule_type: 'No rule'}});
+            }
+            const idx = presets.findIndex((preset) => {return preset.id === +id})
+            if (idx !== -1) {
+                presetForm.setPreset(presets[idx], initData);
+            }
+        }
+
+        {% if initData['action'] == 4 %}
+            ExaFS.showFieldIf('4', '4', 'ddp-form-wrapper');
+        {% endif %}
+        {% if initData['preset'] is not none %}
+            renderPreset({{ initData['preset'] }}, {{ initData|tojson|safe }});
+        {% endif %}
+    </script>
+{% endmacro %}
